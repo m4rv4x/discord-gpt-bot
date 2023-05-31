@@ -3,7 +3,7 @@
 	"discord_token": "M******************************.*************************",
 	"persona": "dev", 
 	"admin_tag": "m4rv4x#0847",
-	"blacklist_tags": ["ghostface#2343", "Nodahs#5961", "Vexera#8487"],
+	"blacklist_tags": ["example#2343", "Other#5961"],
 	"activity": "Chat-GPT",
 	"maxTokens": 600
 }
