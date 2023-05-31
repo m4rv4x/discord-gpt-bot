@@ -8,6 +8,9 @@ git clone https://github.com/m4rv4x/discord-gpt-bot
 cd discord-gpt-bot
 npm install
 cp config.example.json config.json
+```
+## Add your token
+```
 nano config.json
 ```
 ## Run it
