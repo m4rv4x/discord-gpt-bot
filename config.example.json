@@ -1,8 +1,9 @@
 {
-	"openai_token": "sk-*******",
-	"discord_token": "YOUR_DISCORD_TOKEN",
-	"prefix": ">",
+	"openai_token": "sk-***************************",
+	"discord_token": "M******************************.*************************",
+	"persona": "dev", 
 	"admin_tag": "m4rv4x#0847",
-	"blacklist_tags": ["nickname#0000", "bot#1111"],
-	"persona": "shodan"
+	"blacklist_tags": ["ghostface#2343", "Nodahs#5961", "Vexera#8487"],
+	"activity": "Chat-GPT",
+	"maxTokens": 600
 }

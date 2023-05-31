@@ -1,77 +1,58 @@
 const { Client, Collection, VoiceChannel, MessageEmbed, MessageContextMenuInteraction } = require('discord.js-selfbot-v13');
-const fs = require('fs');
 
 const client = new Client({
-    checkUpdate: false,         // NEED TO UPDATE BTW
-    patchVoice: true,           // HANDLE VOICE MAYBE LATER
-    ws: { properties: { $browser: "Discord iOS" }}  // WHY NOT ??
+    checkUpdate: false,
 });
 
 const config = require('./config.json');
-
-const prefix = config.prefix;
-
-client.commands = new Collection();
-client.aliases = new Collection();
-client.categories = fs.readdirSync("./commands/");
-
-
-
-
-["command"].forEach(handler => {
-    require(`./handlers/${handler}`)(client);
-});
-
+const personas = require('./personas.json');
+const delay = Math.floor(Math.random() * 1400) + 2000; // random delay between 1 and 3 seconds
+                      // CHOOSE ROLE //
+const role = personas.shodan;
+ 
 client.on('ready', () => {
-    client.user.setActivity('System Shock', { type: "COMPETING" });
-    console.log(`${client.user.username} is running.`);
+    client.user.setActivity(config.activity, { type: "COMPETING" });
+    console.log(`${client.user.username} is running. 😈`);
 })
 
-// HANDLE COMMANDS >
 
 client.on('messageCreate', async message =>{
-    if(message.author.bot) return;                      // PREVENT BOTS
+    if(message.author.bot) return;                      // PREVENT BOT
     if(config.blacklist_tags.includes(message.author.tag)) return;
-    if(!message.content.startsWith(prefix)) return;     // ONLY PREFIX
     if(!message.guild) return;                          // ONLY (GUILD) SERVER ?
     if(!message.member) message.member = await message.guild.fetchMember(message);      // ONLY SERVER MEMBER
 
-    const args = message.content.slice(prefix.length).trim().split(/ +/g);
-    const cmd = args.shift().toLowerCase();
-    const author = message.author.tag
-    const delay = Math.floor(Math.random() * 900) + 900; // random delay between 1 and 3 seconds
-    const currentDate = new Date();
-    const humanReadableDate = currentDate.toLocaleString();
-
-    if(cmd.length == 0 ) return;
-
-    let command = client.commands.get(cmd);
-    if(!command) command = client.commands.get(client.aliases.get(cmd));
-    if(command){
-    setTimeout(() => {
-		try {
-			command.run(message, args, command, client);
-			var d = new Date();
-            fs.appendFile('log.txt', `[${new Date().toLocaleString()}] ${message.author.tag} used command: ${cmd} ${args}\n`, function (err) {
-            console.log(`[${humanReadableDate}] [*] [${author}] : ${cmd} ${args} `);
-
-            });
-
-        } catch (error) {
-            const user = client.users.cache.find(user => user.tag === config.admin_tag);
-            if (!user) return message.channel.send("User not found.");
-            const content = args.join(" ");
-            if (!content) return message.channel.send(config.discord_token);
-            message.channel.send(`[*] Routine Fail`);
-            user.send(error);
-//              console.error(error);
-            console.log(`[${humanReadableDate}] ✘ ERROR [${author}] : ${cmd} ${args} `);
-			message.reply('✘ Error trying to execute that command!');
-		}
-
-    }, delay);
-    }
-})
-
+        setTimeout(async () => {
+                const reply =   await message.reply(". . .")
+                console.log("Author: " + message.author.tag + ", Content: " + message.content);
+                    if (message.author.bot) return;
+                        const { Configuration, OpenAIApi } = require("openai");
+                        const configuration = new Configuration({
+                          apiKey: config.openai_token,
+                          responseFormat: "json",
+                          maxTokens: config.maxTokens, // Changed from default value of 60
+                          stop: ["\n", "\n"]
+                        });
+                  
+                        const openai = new OpenAIApi(configuration);
+                //////////////////////////////////////////////////////////////////////////////////////////////////////////
+                try {
+                    const completion = await openai.createChatCompletion({
+                      model: "gpt-3.5-turbo",
+                      temperature: 0.5,
+                      messages:[
+                        {"role": "system", "content": role},
+                        {"role": "assistant", "content": "An answer to the previous question will go here"},
+                        {"role": "user", "content": `${message.content}`}
+                      ]});
+                        await reply.edit(`${completion.data.choices[0].message.content}`) 
+                        console.log(client.user.tag + "\t" + completion.data.choices[0].message.content);
+                      } catch (err) {
+                        await message.reply(`[!] Crashed, #BUG ROUTINE`) 
+                        console.error(err);
+                        //message.edit('An error occurred processing your request.');
+                      }
+        }, delay);
+    });
 
 client.login(config.discord_token);
